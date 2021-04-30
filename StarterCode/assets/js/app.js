@@ -127,3 +127,30 @@ var yScale = d3
 var xAxis = d3.axisBottom(xScale);
 var yAxis = d3.axisBottom(yScale);
 
+// Place axis
+svg
+.append("g")
+.call(xAxis)
+.attr("class", "xAxis")
+.attr("transform", "translate(0," + (height - margin - labelArea) + ")");
+vg
+.append("g")
+.call(yAxis)
+.attr("class", "yAxis")
+.attr("transform", "translate(0," + (height - margin - labelArea) + ")");  
+
+// Grouping circles and labels
+var theCircles = svg.selectAll("g the Circles").data(theData).enter();
+
+theCircles
+.append("circle")
+.attr("cx", function(d) {
+    return xScale(d[curX]);
+})
+.attr("cy", function(d) {
+    return yScale(d[curY]);    
+})
+.attr("r", circRadius) 
+.attr("class", function(d){
+    return "stateCircle" + d.attr;
+})    
