@@ -74,7 +74,7 @@ d3.csv("assets/data/data.csv").then(function (data, err) {
         .attr("cx", d => xScale(d.healthcare +2))
         .attr("cy", d => yScale(d.poverty +1))
         .attr("r", 15)
-        .attr("fill", "blue")
+        .attr("fill", "#89bdd3")
         .attr("opacity", ".4")
         .on("mouseout", function (data) {
             toolTip.hide(data);
