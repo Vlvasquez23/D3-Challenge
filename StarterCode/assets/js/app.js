@@ -87,3 +87,25 @@ d3.csv("assets/data/data.csv").then(function(data) {
         var yMin;
         var yMax;
 
+// Min & Max for x
+function xMinMax() {
+    xMin = d3.min(theData, function(d) {
+        return parseFloat(d[curX]) * 0.90;
+    });
+
+    xMax = d3.min(theData, function(d) {
+        return parseFloat(d[curX]) * 1.10;
+    });
+}
+
+// Min & Max for y
+function yMinMax() {
+     yMin = d3.min(theData, function(d) {
+    return parseFloat(d[curY]) * 0.90;
+    });
+
+    yMax = d3.min(theData, function(d) {
+    return parseFloat(d[curY]) * 1.10;
+    });
+}
+
