@@ -73,4 +73,17 @@ var yText = d3.select(".yText");
    .attr("class", "aText active y")
    .text("Lacks Healthcare (%)");  
 
-   
+// Import csv
+d3.csv("assets/data/data.csv").then(function(data) {
+    visualize(data);
+});
+
+    function visualize(theData) {
+        var curX = "poverty";
+        var curY = "healthcare";
+
+        var xMin;
+        var xMax;
+        var yMin;
+        var yMax;
+
