@@ -1,156 +1,130 @@
-// D3- Homework
+var svgWidth = parseInt(d3.select('#scatter').style('width')) * 3;
+var svgHeight = svgWidth - svgWidth/2;
+var margin = {top:10, right:0, bottom: 10, left: 20};
+var width = svgWidth * .75;
+var height = svgHeight * .75;
 
-var width = parseInt(d3.select("#scatter").style("width"));
-
-// Construct graph
-var height = width - width / 4;
-
-var margin = 20;
-
-var labelArea = 110; 
-
-var tPadBot = 40;
-var tPadleft = 40;
 
 var svg = d3
     .select("#scatter")
     .append("svg")
-    .attr("width", width)
-    .attr("height", height)
-    .attr("class", "chart");
+    .attr('class', 'chart')
+    .attr("width", svgWidth)
+    .attr("height", svgHeight);
 
-// Set radius
-var circRadius;
-function crGet() {
-    if (width <= 530) {
-        circRadius = 5;
-    }
-    else {
-        circRadius = 10;
-    }
-}
-crGet();
+var chartGroup = svg.append("g")
+    .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-// Create Label for Axes
-svg.append("g").attr("class", "xText");
+d3.select(".chart")
+    .append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
 
-var xText = d3.select("xText");
 
-    xText.attr(
-        "transform",
-        "translate("+
-        ((width - labelArea) / 2 + labelArea) + 
-        ", " +
-        (height = margin - tPadBot) +
-        ")"
-    );
+d3.csv("assets/data/data.csv").then(function (data, err) {
+    if (err) throw err;
 
-    xText
-    .append("text")
-    .attr("y", -26)
-    .attr("date-name", "poverty")
-    .attr("data-axis", "x")
-    .attr("class", "aText active x")
-    .text("In Poverty (%)");
+    data.forEach(function(data) {
+        data.healthcare = +data.healthcare;
+        data.poverty = +data.poverty;
+    });
 
-var leftTextX = margin + tPadleft;
-var leftTextY = (height + labelArea) / 2 - labelArea;
+    var xLinearScale = d3.scaleLinear().range([0, width]);
+    var yLinearScale = d3.scaleLinear().range([height, 0]);
 
-svg.append("g").attr("class", "yText");
+    var bottomAxis = d3.axisBottom(xLinearScale);
+    var leftAxis = d3.axisLeft(yLinearScale);
 
-var yText = d3.select(".yText");
+    var xMin;
+    var xMax;
+    var yMin;
+    var yMax;
 
-    yText.attr(
-        "transform",
-        "translate(" + leftTextX + ", " + leftTextY +")rotate(-90)"
-    );
+    xMin = d3.min(data, function (data) {
+        return parseFloat(data.healthcare);
+    });
 
-   yText
-   .append("text")
-   .attr("y", 26)
-   .attr("date-name", "healthcare")
-   .attr("data-axis", "x")
-   .attr("class", "aText active y")
-   .text("Lacks Healthcare (%)");  
+    xMax = d3.max(data, function (data) {
+        return parseFloat(data.healthcare);
+    });
 
-// Import csv
-d3.csv("assets/data/data.csv").then(function(data) {
-    visualize(data);
+    yMin = d3.min(data, function (data) {
+        return parseFloat(data.poverty);
+    });
+
+    yMax = d3.max(data, function (data) {
+        return parseFloat(data.poverty);
+    });
+
+    var xScale = xLinearScale.domain([xMin, xMax]);
+    var yScale = yLinearScale.domain([yMin, yMax]);
+
+    chartGroup.append("g")
+        .classed("x-axis", true)
+        .attr("transform", `translate(0, ${height})`)
+        .call(bottomAxis);
+
+    chartGroup.append("g")
+        .call(leftAxis);
+
+    var circlesGroup = chartGroup.selectAll("circle")
+        .data(data)
+        .enter()
+        .append("circle")
+        .attr("cx", d => xScale(d.healthcare +2))
+        .attr("cy", d => yScale(d.poverty +1))
+        .attr("r", 15)
+        .attr("fill", "blue")
+        .attr("opacity", ".4")
+        .on("mouseout", function (data) {
+            toolTip.hide(data);
+        });
+
+    var toolTip = d3.tip()
+        .attr("class", "tooltip")
+        .offset([80, -60])
+        .html(function (d) {
+            return (`${d.abbr}`);
+        });
+
+    chartGroup.call(toolTip);
+
+    circlesGroup.call(toolTip);
+
+    circlesGroup.on("mouseover", function (data) {
+        toolTip.show(data);
+    })
+
+        .on("mouseout", function (data) {
+            toolTip.hide(data);
+        });
+
+    chartGroup.append("text")
+        .style("font-size", "12px")
+        .selectAll("tspan")
+        .data(data)
+        .enter()
+        .append("tspan")
+            .attr("x", function (data) {
+                return xScale(data.healthcare + 1.85);
+            })
+            .attr("y", function (data) {
+                return yScale(data.poverty + .90);
+            })
+            .text(function (data) {
+                return data.abbr
+            });
+
+    chartGroup.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left + 40)
+        .attr("x", 0 - (height / 1.5))
+        .attr("dy", "1em")
+        .attr("class", "text")
+        .text("Lacks Healthcare(%)");
+
+    chartGroup.append("text")
+        .attr("transform", `translate(${width / 1.5}, ${height + margin.top + 40})`)
+        .attr("class", "text")
+        .text("In Poverty (%)");
 });
-
-    function visualize(theData) {
-        var curX = "poverty";
-        var curY = "healthcare";
-
-        var xMin;
-        var xMax;
-        var yMin;
-        var yMax;
-
-// Min & Max for x
-function xMinMax() {
-    xMin = d3.min(theData, function(d) {
-        return parseFloat(d[curX]) * 0.90;
-    });
-
-    xMax = d3.min(theData, function(d) {
-        return parseFloat(d[curX]) * 1.10;
-    });
-}
-
-// Min & Max for y
-function yMinMax() {
-     yMin = d3.min(theData, function(d) {
-    return parseFloat(d[curY]) * 0.90;
-    });
-
-    yMax = d3.min(theData, function(d) {
-    return parseFloat(d[curY]) * 1.10;
-    });
-}
-
-// Scatter Plot
-
-xMinMax();
-yMinMax();
-
-var xScale = d3
-.scaleLinear()
-.domain([xMin, xMax])
-.range([margin + labelArea, width - margin]);
-
-var yScale = d3
-.scaleLinear()
-.domain([yMin, yMax])
-.range([margin + labelArea, width - margin]);    
-
-var xAxis = d3.axisBottom(xScale);
-var yAxis = d3.axisBottom(yScale);
-
-// Place axis
-svg
-.append("g")
-.call(xAxis)
-.attr("class", "xAxis")
-.attr("transform", "translate(0," + (height - margin - labelArea) + ")");
-vg
-.append("g")
-.call(yAxis)
-.attr("class", "yAxis")
-.attr("transform", "translate(0," + (height - margin - labelArea) + ")");  
-
-// Grouping circles and labels
-var theCircles = svg.selectAll("g the Circles").data(theData).enter();
-
-theCircles
-.append("circle")
-.attr("cx", function(d) {
-    return xScale(d[curX]);
-})
-.attr("cy", function(d) {
-    return yScale(d[curY]);    
-})
-.attr("r", circRadius) 
-.attr("class", function(d){
-    return "stateCircle" + d.attr;
-});    
