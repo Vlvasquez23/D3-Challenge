@@ -153,4 +153,4 @@ theCircles
 .attr("r", circRadius) 
 .attr("class", function(d){
     return "stateCircle" + d.attr;
-})    
+});    
