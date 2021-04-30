@@ -109,3 +109,21 @@ function yMinMax() {
     });
 }
 
+// Scatter Plot
+
+xMinMax();
+yMinMax();
+
+var xScale = d3
+.scaleLinear()
+.domain([xMin, xMax])
+.range([margin + labelArea, width - margin]);
+
+var yScale = d3
+.scaleLinear()
+.domain([yMin, yMax])
+.range([margin + labelArea, width - margin]);    
+
+var xAxis = d3.axisBottom(xScale);
+var yAxis = d3.axisBottom(yScale);
+
