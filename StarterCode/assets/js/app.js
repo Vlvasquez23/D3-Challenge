@@ -31,3 +31,46 @@ function crGet() {
 }
 crGet();
 
+// Create Label for Axes
+svg.append("g").attr("class", "xText");
+
+var xText = d3.select("xText");
+
+    xText.attr(
+        "transform",
+        "translate("+
+        ((width - labelArea) / 2 + labelArea) + 
+        ", " +
+        (height = margin - tPadBot) +
+        ")"
+    );
+
+    xText
+    .append("text")
+    .attr("y", -26)
+    .attr("date-name", "poverty")
+    .attr("data-axis", "x")
+    .attr("class", "aText active x")
+    .text("In Poverty (%)");
+
+var leftTextX = margin + tPadleft;
+var leftTextY = (height + labelArea) / 2 - labelArea;
+
+svg.append("g").attr("class", "yText");
+
+var yText = d3.select(".yText");
+
+    yText.attr(
+        "transform",
+        "translate(" + leftTextX + ", " + leftTextY +")rotate(-90)"
+    );
+
+   yText
+   .append("text")
+   .attr("y", 26)
+   .attr("date-name", "healthcare")
+   .attr("data-axis", "x")
+   .attr("class", "aText active y")
+   .text("Lacks Healthcare (%)");  
+
+   
